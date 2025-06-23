@@ -3,6 +3,7 @@ package linker
 import (
 	"os"
 	"path/filepath"
+	"terralink/internal/ignore"
 	"testing"
 
 	"github.com/hashicorp/hcl/v2/hclwrite"
@@ -148,6 +149,9 @@ module "already_dev" {
 // --- Test Functions ---
 
 func TestDevLoad(t *testing.T) {
+	matcher, err := ignore.NewMatcher(".")
+	require.NoError(t, err)
+	linker := NewLinker(matcher)
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			// Setup: create a temporary file
@@ -156,7 +160,7 @@ func TestDevLoad(t *testing.T) {
 			require.NoError(t, os.WriteFile(filePath, []byte(tc.initialHCL), 0644))
 
 			// Execute
-			_, err := DevLoad(filePath)
+			_, err := linker.DevLoad(filePath)
 			require.NoError(t, err)
 
 			// Verify
@@ -169,6 +173,9 @@ func TestDevLoad(t *testing.T) {
 }
 
 func TestDevUnload(t *testing.T) {
+	matcher, err := ignore.NewMatcher(".")
+	require.NoError(t, err)
+	linker := NewLinker(matcher)
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			// Setup: start with the file in dev mode
@@ -177,7 +184,7 @@ func TestDevUnload(t *testing.T) {
 			require.NoError(t, os.WriteFile(filePath, []byte(tc.expectedDevLoad), 0644))
 
 			// Execute
-			_, err := DevUnload(filePath)
+			_, err := linker.DevUnload(filePath)
 			require.NoError(t, err)
 
 			// Verify
@@ -202,6 +209,10 @@ func compareHcl(t *testing.T, expectedHCL, actualHCL []byte) {
 }
 
 func TestCheckCommand(t *testing.T) {
+	matcher, err := ignore.NewMatcher(".")
+	require.NoError(t, err)
+	linker := NewLinker(matcher)
+
 	t.Run("Check finds active dev modules", func(t *testing.T) {
 		dir := t.TempDir()
 		filePath := filepath.Join(dir, "dev.tf")
@@ -210,7 +221,7 @@ func TestCheckCommand(t *testing.T) {
 			t.Fatalf("Failed to write dev file: %v", err)
 		}
 
-		loadedModulesPerFile, err := Check(filePath)
+		loadedModulesPerFile, err := linker.Check(filePath)
 		require.NoError(t, err)
 
 		loadedModules, exists := loadedModulesPerFile[filePath]
@@ -233,7 +244,7 @@ func TestCheckCommand(t *testing.T) {
 			t.Fatalf("Failed to write prod file: %v", err)
 		}
 
-		loadedModulesPerFile, err := Check(filePath)
+		loadedModulesPerFile, err := linker.Check(filePath)
 		if err != nil {
 			t.Fatalf("Check command failed: %v", err)
 		}

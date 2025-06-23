@@ -67,6 +67,16 @@ module "aws_managed" {
     # ... other module configurations
 }
 ```
+you can ignore certain paths from being scanned by `.terralinkignore` file:
+```
+.terraform
+environments/prod/
+node_modules/
+```
+
+the file is expected in the working directory where you run the Terralink commands.
+
+
 Once your directives are in place, you can use the following commands to manage your module dependencies.
 
 ### Load Local Modules

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"terralink/internal/ignore"
 	"terralink/internal/linker"
 
 	"github.com/spf13/cobra"
@@ -18,17 +19,34 @@ If any are found, it lists the linked modules and exits with a non-zero status c
 This is useful in pre-commit hooks to prevent committing dev configurations.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		log.Println("Checking for active dev links...")
-		activeDevLoadModules, err := linker.Check(scanDir)
+		matcher, err := ignore.NewMatcher(ignoreFile)
+		if err != nil {
+			log.Fatalf("Error creating ignore matcher: %v", err)
+		}
+		l := linker.NewLinker(matcher)
+		activeDevLoadModules, err := l.Check(scanDir)
 		if err != nil {
 			log.Fatalf("Error during check: %v", err)
 		}
 
 		if len(activeDevLoadModules) > 0 {
-			fmt.Fprintln(os.Stderr, "\n❌ Error: Found Loaded Dev modules")
-			for _, loadedModules := range activeDevLoadModules {
-				fmt.Fprintf(os.Stderr, "  - Module '%s' is loaded.\n", loadedModules)
+			_, err = fmt.Fprintln(os.Stderr, "\n❌ Error: Found Loaded Dev modules")
+			if err != nil {
+				log.Panic(err)
 			}
-			fmt.Fprintln(os.Stderr, "\nRun 'terralink prod' to fix this.")
+
+			for _, loadedModules := range activeDevLoadModules {
+				_, err = fmt.Fprintf(os.Stderr, "  - Module '%s' is loaded.\n", loadedModules)
+				if err != nil {
+					log.Panic(err)
+				}
+
+			}
+			_, err = fmt.Fprintln(os.Stderr, "\nRun 'terralink unload' to fix this.")
+			if err != nil {
+				log.Panic(err)
+			}
+
 			os.Exit(1)
 		}
 
@@ -37,5 +55,6 @@ This is useful in pre-commit hooks to prevent committing dev configurations.`,
 }
 
 func init() {
+	commonFlags(checkCmd)
 	rootCmd.AddCommand(checkCmd)
 }

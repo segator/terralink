@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"log"
+	"terralink/internal/ignore"
 	"terralink/internal/linker"
 
 	"github.com/spf13/cobra"
@@ -15,7 +16,12 @@ It replaces the remote 'source' with the local path and saves the original state
 in a temporary 'terralink-state' comment for later restoration.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		log.Println("Linking local modules for DEV mode...")
-		_, err := linker.DevLoad(scanDir)
+		matcher, err := ignore.NewMatcher(ignoreFile)
+		if err != nil {
+			log.Fatalf("Error creating ignore matcher: %v", err)
+		}
+		l := linker.NewLinker(matcher)
+		_, err = l.DevLoad(scanDir)
 		if err != nil {
 			log.Fatalf("Error running in dev mode: %v", err)
 		}
@@ -23,5 +29,6 @@ in a temporary 'terralink-state' comment for later restoration.`,
 }
 
 func init() {
+	commonFlags(loadCmd)
 	rootCmd.AddCommand(loadCmd)
 }

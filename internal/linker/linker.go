@@ -4,11 +4,11 @@ import (
 	"bufio"
 	"fmt"
 	"io/fs"
-	"log"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
+	"terralink/internal/ignore"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclsyntax"
@@ -29,19 +29,30 @@ type ActiveLinkInfo struct {
 
 type LoadedModules []string
 
-func Check(scanPath string) (map[string]LoadedModules, error) {
+type Linker struct {
+	matcher *ignore.IgnoreMatcher
+}
+
+func NewLinker(matcher *ignore.IgnoreMatcher) *Linker {
+	return &Linker{
+		matcher: matcher,
+	}
+}
+
+func (l *Linker) Check(scanPath string) (map[string]LoadedModules, error) {
 	loadedModulesFile := make(map[string]LoadedModules)
+
 	err := filepath.WalkDir(scanPath, func(path string, d fs.DirEntry, err error) error {
+		if l.matcher.ShouldIgnore(path) {
+			return filepath.SkipDir
+		}
+
+		loadedModules, err := check(path)
 		if err != nil {
 			return err
 		}
-		if !d.IsDir() && strings.HasSuffix(path, ".tf") {
-			loadedModules, err := check(path)
-			if err != nil {
-				return err
-			}
-			loadedModulesFile[path] = loadedModules
-		}
+		loadedModulesFile[path] = loadedModules
+
 		return nil
 	})
 	if err != nil {
@@ -49,6 +60,54 @@ func Check(scanPath string) (map[string]LoadedModules, error) {
 	}
 	return loadedModulesFile, nil
 }
+
+func (l *Linker) DevLoad(scanPath string) (map[string]int, error) {
+	changesPerFile := make(map[string]int)
+
+	err := filepath.WalkDir(scanPath, func(path string, d fs.DirEntry, err error) error {
+		if l.matcher.ShouldIgnore(path) {
+			return nil
+		}
+
+		changes, err := devLoad(path)
+		if err != nil {
+			return err
+		}
+		if changes > 0 {
+			changesPerFile[path] = changes
+		}
+		return nil
+	})
+	if err != nil {
+		return changesPerFile, fmt.Errorf("error walking directories: %w", err)
+	}
+	return changesPerFile, nil
+}
+
+func (l *Linker) DevUnload(scanPath string) (map[string]int, error) {
+	changesPerFile := make(map[string]int)
+
+	err := filepath.WalkDir(scanPath, func(path string, d fs.DirEntry, err error) error {
+		if l.matcher.ShouldIgnore(path) {
+			return nil
+		}
+
+		changes, err := devUnload(path)
+		if err != nil {
+			return err
+		}
+		if changes > 0 {
+			changesPerFile[path] = changes
+		}
+
+		return nil
+	})
+	if err != nil {
+		return changesPerFile, fmt.Errorf("error walking directories: %w", err)
+	}
+	return changesPerFile, nil
+}
+
 func check(path string) (LoadedModules, error) {
 	var loadedModules LoadedModules
 	hclFile, err := openFile(path)
@@ -76,27 +135,6 @@ func check(path string) (LoadedModules, error) {
 	return loadedModules, nil
 }
 
-func DevLoad(scanPath string) (map[string]int, error) {
-	changesPerFile := make(map[string]int)
-	err := filepath.WalkDir(scanPath, func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
-		if !d.IsDir() && strings.HasSuffix(path, ".tf") {
-			changes, err := devLoad(path)
-			if err != nil {
-				return err
-			}
-			changesPerFile[path] = changes
-		}
-		return nil
-	})
-	if err != nil {
-		return changesPerFile, fmt.Errorf("error walking directories: %w", err)
-	}
-	return changesPerFile, nil
-}
-
 func devLoad(path string) (int, error) {
 	hclFile, err := openFile(path)
 	if err != nil {
@@ -109,7 +147,7 @@ func devLoad(path string) (int, error) {
 
 		sourceAttr := moduleBody.GetAttribute("source")
 		if sourceAttr == nil {
-			return 0, fmt.Errorf("this module block does not have a source attribute")
+			return 0, fmt.Errorf("module %s block does not have a source attribute", moduleBlock.Labels()[0])
 		}
 		originalSource := getAttrValueAsString(sourceAttr)
 
@@ -161,7 +199,7 @@ func devLoad(path string) (int, error) {
 			}
 
 			moduleTokens = append(moduleTokens, token)
-			localPath, tokenIsTerralinkAnnotation := parseTerralinkAnnotation(tokenStr)
+			_, tokenIsTerralinkAnnotation := parseTerralinkAnnotation(tokenStr)
 			if !tokenIsTerralinkAnnotation {
 				continue
 			}
@@ -176,10 +214,10 @@ func devLoad(path string) (int, error) {
 					Bytes: []byte("\n"),
 				},
 			}...)
-			fmt.Print(localPath)
+			fmt.Printf("load module: %s on %s\n", moduleBlock.Labels()[0], path)
 			changesMade++
 		}
-		hclwrite.TokensForTraversal(make(hcl.Traversal, 0))
+
 		if changesMade > 0 {
 			moduleBody.Clear()
 			moduleBody.AppendUnstructuredTokens(moduleTokens)
@@ -209,26 +247,6 @@ func searchForToken(tokens hclwrite.Tokens, tokenType hclsyntax.TokenType, f fun
 	}
 	return nil, false
 }
-func DevUnload(scanPath string) (map[string]int, error) {
-	changesPerFile := make(map[string]int)
-	err := filepath.WalkDir(scanPath, func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
-		if !d.IsDir() && strings.HasSuffix(path, ".tf") {
-			changes, err := devUnload(path)
-			if err != nil {
-				return err
-			}
-			changesPerFile[path] = changes
-		}
-		return nil
-	})
-	if err != nil {
-		return changesPerFile, fmt.Errorf("error walking directories: %w", err)
-	}
-	return changesPerFile, nil
-}
 func devUnload(path string) (int, error) {
 	hclFile, err := openFile(path)
 	if err != nil {
@@ -253,7 +271,6 @@ func devUnload(path string) (int, error) {
 			return tokenIsTerralinkStateAnnotation
 		})
 		if originalSource == "" {
-			log.Print("⚠️  No terralink state annotation found in module block, skipping...")
 			return 0, nil
 		}
 		moduleBody.SetAttributeValue("source", cty.StringVal(originalSource))
@@ -272,6 +289,7 @@ func devUnload(path string) (int, error) {
 					if originalVersion != "" {
 						moduleTokens = append(moduleTokens, addNewAttributeTokens("version", originalVersion)...)
 					}
+					fmt.Printf("unload module: %s on %s\n", moduleBlock.Labels()[0], path)
 					continue
 				}
 			}

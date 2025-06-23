@@ -22,6 +22,7 @@ build:
 	@echo "Starting build for version: $(VERSION)..."
 	@mkdir -p $(OUTPUT_DIR)
 	@$(foreach platform,$(PLATFORMS), $(call build_platform,$(platform)))
+	@chmod +x $(OUTPUT_DIR)/*
 	@echo "Build complete. Binaries are in $(OUTPUT_DIR)/"
 
 # A helper function to build for a single platform
