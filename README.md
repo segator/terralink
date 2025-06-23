@@ -30,22 +30,22 @@ You can download pre-built binaries for various platforms from the [releases pag
 
 #### Linux AMD64 processors
 ```bash
-https://github.com/segator/terralink/releases/download/v0.1.0/terralink-0.1.0-linux-amd64  # x-release-please-version 
+https://github.com/segator/terralink/releases/download/v0.2.0/terralink-0.2.0-linux-amd64  # x-release-please-version 
 ```
 
 #### Linux ARM processors
 ```bash
-https://github.com/segator/terralink/releases/download/v0.1.0/terralink-0.1.0-linux-arm64  # x-release-please-version
+https://github.com/segator/terralink/releases/download/v0.2.0/terralink-0.2.0-linux-arm64  # x-release-please-version
 ```
 
 #### MacOS ARM processors
 ```bash
-https://github.com/segator/terralink/releases/download/v0.1.0/terralink-0.1.0-darwin-arm64  # x-release-please-version
+https://github.com/segator/terralink/releases/download/v0.2.0/terralink-0.2.0-darwin-arm64  # x-release-please-version
 ```
 
 #### MacOS Intel processors
 ```bash
-https://github.com/segator/terralink/releases/download/v0.1.0/terralink-0.1.0-darwin-amd64  # x-release-please-version
+https://github.com/segator/terralink/releases/download/v0.2.0/terralink-0.2.0-darwin-amd64  # x-release-please-version
 ```
 
 ## Usage

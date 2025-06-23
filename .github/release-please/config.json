@@ -51,14 +51,13 @@
     }
   ],
   "include-component-in-tag": false,
-
   "packages": {
     ".": {
       "release-type": "simple",
       "include-v-in-tag": true,
       "package-name": "terralink",
       "extra-files": [
-        "Readme.md"
+        "README.md"
       ]
     }
   },
