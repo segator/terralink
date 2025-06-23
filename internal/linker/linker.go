@@ -42,7 +42,7 @@ func NewLinker(matcher *ignore.IgnoreMatcher) *Linker {
 func (l *Linker) Check(scanPath string) (map[string]LoadedModules, error) {
 	loadedModulesFile := make(map[string]LoadedModules)
 
-	err := filepath.WalkDir(scanPath, func(path string, d fs.DirEntry, err error) error {
+	err := filepath.WalkDir(scanPath, func(path string, d fs.DirEntry, _ error) error {
 		if l.matcher.ShouldIgnore(path) {
 			return filepath.SkipDir
 		}
@@ -64,7 +64,7 @@ func (l *Linker) Check(scanPath string) (map[string]LoadedModules, error) {
 func (l *Linker) DevLoad(scanPath string) (map[string]int, error) {
 	changesPerFile := make(map[string]int)
 
-	err := filepath.WalkDir(scanPath, func(path string, d fs.DirEntry, err error) error {
+	err := filepath.WalkDir(scanPath, func(path string, d fs.DirEntry, _ error) error {
 		if l.matcher.ShouldIgnore(path) {
 			return nil
 		}
@@ -87,7 +87,7 @@ func (l *Linker) DevLoad(scanPath string) (map[string]int, error) {
 func (l *Linker) DevUnload(scanPath string) (map[string]int, error) {
 	changesPerFile := make(map[string]int)
 
-	err := filepath.WalkDir(scanPath, func(path string, d fs.DirEntry, err error) error {
+	err := filepath.WalkDir(scanPath, func(path string, d fs.DirEntry, _ error) error {
 		if l.matcher.ShouldIgnore(path) {
 			return nil
 		}
