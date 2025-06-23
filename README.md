@@ -1,17 +1,40 @@
 # Terralink
 
+<img src="./assets/terralink-logo.png" alt="Terralink Logo" style="float: left; margin-right: 20px; width: 100px;">
+
 Tired of manually changing your Terraform module sources to local paths during development? Terralink is a command-line tool that simplifies this process, allowing you to seamlessly switch between remote and local module dependencies.
 
 By adding a simple comment directive to your module blocks, you can instruct Terralink to "load" your local modules for development or "unload" them to revert to the original remote sources. This is especially useful for developers who need to frequently test changes locally without altering their main Terraform configuration.
-
 ## Installation
 
-You can install Terralink using go install:
+### Go Install
+If you have Go installed, you can easily install Terralink using the following command:
 ```bash
-go install github.com/segator/terralink@latest
+go install github.com/segator/terralink@0.1.0  # x-release-please-version 
 ```
 
-Alternatively, you can download a specific version from the GitHub releases page.
+### Pre-built Binaries
+You can download pre-built binaries for various platforms from the [releases page](
+
+#### Linux AMD64 processors
+```bash
+https://github.com/segator/terralink/releases/download/v0.1.0/terralink-0.1.0-linux-amd64  # x-release-please-version 
+```
+
+#### Linux ARM processors
+```bash
+https://github.com/segator/terralink/releases/download/v0.1.0/terralink-0.1.0-linux-arm64  # x-release-please-version
+```
+
+#### MacOS ARM processors
+```bash
+https://github.com/segator/terralink/releases/download/v0.1.0/terralink-0.1.0-darwin-arm64  # x-release-please-version
+```
+
+#### MacOS Intel processors
+```bash
+https://github.com/segator/terralink/releases/download/v0.1.0/terralink-0.1.0-darwin-amd64  # x-release-please-version
+```
 
 ## Usage
 
