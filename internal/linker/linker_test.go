@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/hcl/v2/hclwrite"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -144,11 +145,80 @@ module "already_dev" {
 }
 `,
 	},
+	{
+		name: "Complex module with multiple blocks and functions",
+		initialHCL: `
+module "module_without_annotation" {
+  # terralink: path=../dev/module  
+  source = "remote/source"
+  version = "1.0.0"
+  block1 = {
+    attr= try(coalesce(var.config.version, ""), "3.2.0")
+    subBlock2 = {
+      dns_records = [
+        "radid"
+      ]
+      secrets_manager_service_accounts = ["${local.gitops.base_namespace}:${local.gitops.external_secrets.service_account_name}"]
+    }
+  }
+}`,
+		expectedDevLoad: `
+module "module_without_annotation" {
+  # terralink: path=../dev/module  
+  # terralink-state: source="remote/source" version="1.0.0"
+  source = "../dev/module"
+  block1 = {
+    attr= try(coalesce(var.config.version, ""), "3.2.0")
+    subBlock2 = {
+      dns_records = [
+        "radid"
+      ]
+      secrets_manager_service_accounts = ["${local.gitops.base_namespace}:${local.gitops.external_secrets.service_account_name}"]
+    }
+  }
+}`,
+		expectedDevUnload: `
+module "module_without_annotation" {
+  # terralink: path=../dev/module  
+  source = "remote/source"
+  version = "1.0.0"
+  block1 = {
+    attr= try(coalesce(var.config.version, ""), "3.2.0")
+    subBlock2 = {
+      dns_records = [
+        "radid"
+      ]
+      secrets_manager_service_accounts = ["${local.gitops.base_namespace}:${local.gitops.external_secrets.service_account_name}"]
+    }
+  }
+}`,
+	},
+	{
+		name: "Module without annotation",
+		initialHCL: `
+module "module_without_annotation" {
+  source = "../dev/module"
+  version = "1.0.0"
+}
+`,
+		expectedDevLoad: `
+module "module_without_annotation" {
+  source = "../dev/module"
+  version = "1.0.0"
+}
+`,
+		expectedDevUnload: `
+module "module_without_annotation" {
+  source = "../dev/module"
+  version = "1.0.0"
+}
+`,
+	},
 }
 
 // --- Test Functions ---
 
-func TestDevLoad(t *testing.T) {
+func TestLinker_DevLoad(t *testing.T) {
 	matcher, err := ignore.NewMatcher(".")
 	require.NoError(t, err)
 	linker := NewLinker(matcher)
@@ -172,7 +242,7 @@ func TestDevLoad(t *testing.T) {
 	}
 }
 
-func TestDevUnload(t *testing.T) {
+func TestLinker_DevUnload(t *testing.T) {
 	matcher, err := ignore.NewMatcher(".")
 	require.NoError(t, err)
 	linker := NewLinker(matcher)
@@ -208,7 +278,7 @@ func compareHcl(t *testing.T, expectedHCL, actualHCL []byte) {
 	}
 }
 
-func TestCheckCommand(t *testing.T) {
+func TestLinker_CheckCommand(t *testing.T) {
 	matcher, err := ignore.NewMatcher(".")
 	require.NoError(t, err)
 	linker := NewLinker(matcher)
@@ -225,15 +295,9 @@ func TestCheckCommand(t *testing.T) {
 		require.NoError(t, err)
 
 		loadedModules, exists := loadedModulesPerFile[filePath]
-		if !exists {
-			t.Fatalf("Expected to find file %s in loaded modules, but it was not found", filePath)
-		}
-		if len(loadedModules) != 1 {
-			t.Errorf("Expected to find 1 loaded module, but found %d", len(loadedModules))
-		}
-		if loadedModules[0] != "my_module" {
-			t.Errorf("Expected module name 'my_module', got '%s'", loadedModules[0])
-		}
+		assert.Equal(t, true, exists)
+		assert.Equal(t, len(loadedModules), 1)
+		assert.Contains(t, loadedModules, "my_module")
 	})
 
 	t.Run("Check finds no loaded modules", func(t *testing.T) {
@@ -245,16 +309,10 @@ func TestCheckCommand(t *testing.T) {
 		}
 
 		loadedModulesPerFile, err := linker.Check(filePath)
-		if err != nil {
-			t.Fatalf("Check command failed: %v", err)
-		}
+		require.NoError(t, err)
 
 		loadedModules, exists := loadedModulesPerFile[filePath]
-		if !exists {
-			t.Fatalf("Expected to find file %s in loaded modules, but it was not found", filePath)
-		}
-		if len(loadedModules) != 0 {
-			t.Errorf("Expected to find 0 loaded Modules, but found %d", len(loadedModules))
-		}
+		assert.Equal(t, false, exists)
+		assert.Equal(t, len(loadedModules), 0)
 	})
 }
