@@ -21,7 +21,7 @@ jobs:
         name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.23.10'
+          go-version: '1.24'
       - name: Release
         id: release
         uses: googleapis/release-please-action@v4.2.0

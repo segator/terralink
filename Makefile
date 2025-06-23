@@ -42,6 +42,10 @@ test:
 	@go test -v ./...
 	@echo "Tests completed."
 
+lint:
+	@echo "Running linter..."
+	@golangci-lint run
+	@echo "Linting completed."
 # Target to clean up the build artifacts
 .PHONY: clean
 clean:

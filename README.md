@@ -12,7 +12,9 @@
 [![Go Version](https://img.shields.io/github/go-mod/go-version/segator/terralink)](https://github.com/segator/terralink)
 
 
-Tired of manually changing your Terraform module sources to local paths during development? Terralink is a command-line tool that simplifies this process, allowing you to seamlessly switch between remote and local module dependencies.
+**Tired of manually changing your Terraform module sources to local paths during development?**
+
+Terralink is a command-line tool that simplifies this process, allowing you to seamlessly switch between remote and local module dependencies.
 
 By adding a simple comment directive to your module blocks, you can instruct Terralink to "load" your local modules for development or "unload" them to revert to the original remote sources. This is especially useful for developers who need to frequently test changes locally without altering their main Terraform configuration.
 ## Installation

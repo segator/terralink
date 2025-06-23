@@ -2,7 +2,6 @@ package linker
 
 import (
 	"bufio"
-	"bytes"
 	"fmt"
 	"io/fs"
 	"log"
@@ -397,17 +396,6 @@ func buildStateAnnotation(source, version string) string {
 		versionPart = fmt.Sprintf(` version="%s"`, version)
 	}
 	return fmt.Sprintf(`%s source="%s"%s`, stateAnnotationPrefix, source, versionPart)
-}
-
-func removeStateAnnotation(comment string) string {
-	var cleanComments bytes.Buffer
-	scanner := bufio.NewScanner(strings.NewReader(comment))
-	for scanner.Scan() {
-		if !strings.HasPrefix(strings.TrimSpace(scanner.Text()), stateAnnotationPrefix) {
-			cleanComments.WriteString(scanner.Text() + "\n")
-		}
-	}
-	return strings.TrimRight(cleanComments.String(), "\n")
 }
 
 func getAttrValueAsString(attr *hclwrite.Attribute) string {
