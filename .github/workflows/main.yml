@@ -1,0 +1,44 @@
+name: Build And Push
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
+  packages: write
+
+jobs:
+  goreleaser:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23.10'
+      - name: Release
+        id: release
+        uses: googleapis/release-please-action@v4.2.0
+        with:
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
+          config-file: .github/release-please/config.json
+          manifest-file: .github/release-please/manifest.json
+      -
+        name: Build
+        run: make build
+        env:
+          VERSION: ${{ steps.release.outputs.version }}
+      -
+        name: Test
+        run: make test
+      - name: Upload Github release assets
+        if: ${{ steps.release.outputs.release_created }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload ${{ steps.release.outputs.tag_name }} ./dist/terralink-*  --clobber
