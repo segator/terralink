@@ -1,6 +1,16 @@
 # Terralink
+<img src="./assets/terralink-logo.png" alt="Terralink Logo" style="width: 200px;">
 
-<img src="./assets/terralink-logo.png" alt="Terralink Logo" style="float: left; margin-right: 20px; width: 100px;">
+
+
+
+
+[![Go Report Card](https://goreportcard.com/badge/github.com/segator/terralink)](https://goreportcard.com/report/github.com/segator/terralink)
+[![Github Action](https://github.com/segator/terralink/actions/workflows/main.yml/badge.svg)](https://github.com/segator/terralink/actions/workflows/main.yml)
+[![Release](https://img.shields.io/github/release/segator/terralink.svg)](https://github.com/segator/terralink/releases/latest)
+[![License](https://img.shields.io/github/license/segator/terralink)](https://github.com/segator/terralink/blob/main/LICENSE)
+[![Go Version](https://img.shields.io/github/go-mod/go-version/segator/terralink)](https://github.com/segator/terralink)
+
 
 Tired of manually changing your Terraform module sources to local paths during development? Terralink is a command-line tool that simplifies this process, allowing you to seamlessly switch between remote and local module dependencies.
 
