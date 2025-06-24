@@ -45,7 +45,7 @@ define build_platform
 	$(eval os = $(word 1,$(parts)))
 	$(eval arch = $(word 2,$(parts)))
 	@echo "--> Building for $(os)/$(arch)..."
-	$(eval output_name = "$(OUTPUT_DIR)/$(BINARY_NAME)-$(VERSION)-$(os)-$(arch)")
+	$(eval output_name = "$(OUTPUT_DIR)/$(BINARY_NAME)-$(os)-$(arch)")
 	$(if $(findstring windows,$(os)),$(eval output_name = "$(output_name).exe"))
 	@GOOS=$(os) GOARCH=$(arch) go build -v $(BUILD_GO_FLAGS) $(BUILD_LDFLAGS) -o $(output_name) $(MAIN_PACKAGE_PATH)
 endef
