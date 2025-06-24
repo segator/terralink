@@ -48,6 +48,24 @@ https://github.com/segator/terralink/releases/download/v0.2.0/terralink-0.2.0-da
 https://github.com/segator/terralink/releases/download/v0.2.0/terralink-0.2.0-darwin-amd64  # x-release-please-version
 ```
 
+### Nix
+You can run Terralink directly using `nix run`, which will build and execute it without adding it to your profile. This is useful for one-off commands.
+```bash
+nix run github:segator/terralink#terralink version
+```
+
+### DevBox
+Run `devbox init` then add Terralink to your Devbox environment, add the following package to your `devbox.json`:
+
+```json
+{
+  "packages": [
+    "github:segator/terralink#terralink"
+  ]
+}
+```
+After adding the package, run `devbox shell`. The terralink command will be available in your shell.
+
 ## Usage
 
 To use Terralink, first add a special comment directive to your Terraform module blocks. This directive tells Terralink where to find the local version of the module.
