@@ -17,6 +17,18 @@
 Terralink is a command-line tool that simplifies this process, allowing you to seamlessly switch between remote and local module dependencies.
 
 By adding a simple comment directive to your module blocks, you can instruct Terralink to "load" your local modules for development or "unload" them to revert to the original remote sources. This is especially useful for developers who need to frequently test changes locally without altering their main Terraform configuration.
+
+## Table of Contents
+*   [Installation](#installation)
+    *   [Go Install](#go-install)
+    *   [Pre-built Binaries](#pre-built-binaries)
+    *   [Nix](#nix)
+    *   [DevBox](#devbox)
+*   [Usage](#usage)
+    *   [Load Local Modules](#load-local-modules)
+    *   [Unload Local Modules](#unload-local-modules)
+    *   [Check Module Status](#check-module-status)
+
 ## Installation
 
 ### Go Install
