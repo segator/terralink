@@ -25,12 +25,19 @@ vendor:
 
 
 .PHONY: build
-build:
+build: go-build nix-build
+
+.PHONY: go-build
+go-build:
 	@echo "Starting build for version: $(VERSION)..."
 	@mkdir -p $(OUTPUT_DIR)
 	@$(foreach platform,$(PLATFORMS), $(call build_platform,$(platform)))
 	@chmod +x $(OUTPUT_DIR)/*
 	@echo "Build complete. Binaries are in $(OUTPUT_DIR)/"
+
+.PHONY: nix-build
+nix-build:
+	nix build .#terralink
 
 # A helper function to build for a single platform
 define build_platform
