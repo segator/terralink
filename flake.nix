@@ -11,8 +11,8 @@
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs { inherit system; };
-
         pname = "terralink";
+        pkgPath ="${pname}/cmd";
         version = "0.2.0";  # x-release-please-version
         rev = self.rev or "dirty";
 
@@ -27,7 +27,9 @@
             ldflags = [
               "-s"
               "-w"
-              "-X main.version=${version}-${rev}"
+              "-X '${pkgPath}.Version=${version}'"
+              "-X '${pkgPath}.Commit=${self.shortRev or "dirty"}'"
+              "-X '${pkgPath}.BuildDate=${self.lastModifiedDate}'"
             ];
           };
         };
