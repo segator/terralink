@@ -34,7 +34,7 @@ By adding a simple comment directive to your module blocks, you can instruct Ter
 ### Go Install
 If you have Go installed, you can easily install Terralink using the following command:
 ```bash
-go install github.com/segator/terralink@v0.2.1  # x-release-please-version 
+go install github.com/segator/terralink@v0.2.2  # x-release-please-version 
 ```
 
 ### Pre-built Binaries
@@ -42,23 +42,23 @@ You can download pre-built binaries for various platforms from the [releases pag
 
 | OS                                                                                                       | Architecture | Download |
 |----------------------------------------------------------------------------------------------------------|--------------|----------|
-| ![Linux](https://img.shields.io/badge/Linux-000430?style=for-the-badge&logo=linux&logoColor=white)       | ![amd64](https://img.shields.io/badge/amd64-334117?style=for-the-badge&logo=amd&logoColor=white) | [Download](https://github.com/segator/terralink/releases/download/v0.2.1/terralink-linux-amd64) | # x-release-please-version
-| ![Linux](https://img.shields.io/badge/Linux-000430?style=for-the-badge&logo=linux&logoColor=white)       | ![arm64](https://img.shields.io/badge/arm64-143340?style=for-the-badge&logo=arm&logoColor=white) | [Download](https://github.com/segator/terralink/releases/download/v0.2.1/terralink-linux-arm64) | # x-release-please-version
-| ![macOS](https://img.shields.io/badge/macOS-7a7a7a?style=for-the-badge&logo=apple&logoColor=white)       | ![amd64](https://img.shields.io/badge/amd64-334117?style=for-the-badge&logo=amd&logoColor=white) | [Download](https://github.com/segator/terralink/releases/download/v0.2.1/terralink-darwin-amd64) | # x-release-please-version
-| ![macOS](https://img.shields.io/badge/macOS-7a7a7a?style=for-the-badge&logo=apple&logoColor=white)       | ![arm64](https://img.shields.io/badge/arm64-143340?style=for-the-badge&logo=arm&logoColor=white) | [Download](https://github.com/segator/terralink/releases/download/v0.2.1/terralink-darwin-arm64) | # x-release-please-version
-| ![Windows](https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white) | ![amd64](https://img.shields.io/badge/amd64-334117?style=for-the-badge&logo=amd&logoColor=white) | [Download](https://github.com/segator/terralink/releases/download/v0.2.1/terralink-windows-amd64.exe) | # x-release-please-version
-| ![Windows](https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white) | ![arm64](https://img.shields.io/badge/arm64-143340?style=for-the-badge&logo=arm&logoColor=white) | [Download](https://github.com/segator/terralink/releases/download/v0.2.1/terralink-windows-arm64.exe) | # x-release-please-version
+| ![Linux](https://img.shields.io/badge/Linux-000430?style=for-the-badge&logo=linux&logoColor=white)       | ![amd64](https://img.shields.io/badge/amd64-334117?style=for-the-badge&logo=amd&logoColor=white) | [Download](https://github.com/segator/terralink/releases/download/v0.2.2/terralink-linux-amd64) | # x-release-please-version
+| ![Linux](https://img.shields.io/badge/Linux-000430?style=for-the-badge&logo=linux&logoColor=white)       | ![arm64](https://img.shields.io/badge/arm64-143340?style=for-the-badge&logo=arm&logoColor=white) | [Download](https://github.com/segator/terralink/releases/download/v0.2.2/terralink-linux-arm64) | # x-release-please-version
+| ![macOS](https://img.shields.io/badge/macOS-7a7a7a?style=for-the-badge&logo=apple&logoColor=white)       | ![amd64](https://img.shields.io/badge/amd64-334117?style=for-the-badge&logo=amd&logoColor=white) | [Download](https://github.com/segator/terralink/releases/download/v0.2.2/terralink-darwin-amd64) | # x-release-please-version
+| ![macOS](https://img.shields.io/badge/macOS-7a7a7a?style=for-the-badge&logo=apple&logoColor=white)       | ![arm64](https://img.shields.io/badge/arm64-143340?style=for-the-badge&logo=arm&logoColor=white) | [Download](https://github.com/segator/terralink/releases/download/v0.2.2/terralink-darwin-arm64) | # x-release-please-version
+| ![Windows](https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white) | ![amd64](https://img.shields.io/badge/amd64-334117?style=for-the-badge&logo=amd&logoColor=white) | [Download](https://github.com/segator/terralink/releases/download/v0.2.2/terralink-windows-amd64.exe) | # x-release-please-version
+| ![Windows](https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white) | ![arm64](https://img.shields.io/badge/arm64-143340?style=for-the-badge&logo=arm&logoColor=white) | [Download](https://github.com/segator/terralink/releases/download/v0.2.2/terralink-windows-arm64.exe) | # x-release-please-version
 ### Nix
 You can run Terralink directly using `nix run`, which will build and execute it without adding it to your profile. This is useful for one-off commands.
 ```bash
-nix run github:segator/terralink/v0.2.1#terralink version # x-release-please-version
+nix run github:segator/terralink/v0.2.2#terralink version # x-release-please-version
 ```
 
 ### DevBox
 Run `devbox init` then add Terralink to your Devbox environment
 
 ```bash
-devbox add github:segator/terralink/v0.2.1#terralink # x-release-please-version
+devbox add github:segator/terralink/v0.2.2#terralink # x-release-please-version
 ```
 
 After adding the package, run `devbox shell`. The terralink command will be available in your shell.
