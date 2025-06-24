@@ -22,7 +22,13 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: '1.24'
-      - name: Release
+      -
+        name: Set up Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+      -
+        name: Release
         id: release
         uses: googleapis/release-please-action@v4.2.0
         with:
@@ -37,7 +43,8 @@ jobs:
       -
         name: Test
         run: make test
-      - name: Upload Github release assets
+      -
+        name: Upload Github release assets
         if: ${{ steps.release.outputs.release_created }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

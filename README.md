@@ -22,7 +22,7 @@ By adding a simple comment directive to your module blocks, you can instruct Ter
 ### Go Install
 If you have Go installed, you can easily install Terralink using the following command:
 ```bash
-go install github.com/segator/terralink@0.1.0  # x-release-please-version 
+go install github.com/segator/terralink@v0.2.0  # x-release-please-version 
 ```
 
 ### Pre-built Binaries
@@ -47,6 +47,21 @@ https://github.com/segator/terralink/releases/download/v0.2.0/terralink-0.2.0-da
 ```bash
 https://github.com/segator/terralink/releases/download/v0.2.0/terralink-0.2.0-darwin-amd64  # x-release-please-version
 ```
+
+### Nix
+You can run Terralink directly using `nix run`, which will build and execute it without adding it to your profile. This is useful for one-off commands.
+```bash
+nix run github:segator/terralink/v0.2.0#terralink version # x-release-please-version
+```
+
+### DevBox
+Run `devbox init` then add Terralink to your Devbox environment
+
+```bash
+devbox add github:segator/terralink/v0.2.0#terralink # x-release-please-version
+```
+
+After adding the package, run `devbox shell`. The terralink command will be available in your shell.
 
 ## Usage
 

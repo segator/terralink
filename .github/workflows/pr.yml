@@ -23,6 +23,12 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: '1.24'
+
+      -
+        name: Set up Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
       -
         name: Build
         run: make build

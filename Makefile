@@ -4,6 +4,7 @@ OUTPUT_DIR=dist
 VERSION ?= dev
 
 # Build flags
+BUILD_GO_FLAGS = -mod=vendor
 BUILD_PKG_PATH = terralink/cmd
 BUILD_COMMIT = $(shell git rev-parse --short HEAD 2>/dev/null || echo "none")
 BUILD_DATE = $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
@@ -14,16 +15,29 @@ PLATFORMS=linux/amd64 linux/arm64 windows/amd64 windows/arm64 darwin/amd64 darwi
 
 
 .PHONY: all
-all: build
+all: vendor build
+
+.PHONY: vendor
+vendor:
+	@echo "Vendoring dependencies..."
+	@go mod tidy
+	@go mod vendor
 
 
 .PHONY: build
-build:
+build: go-build nix-build
+
+.PHONY: go-build
+go-build:
 	@echo "Starting build for version: $(VERSION)..."
 	@mkdir -p $(OUTPUT_DIR)
 	@$(foreach platform,$(PLATFORMS), $(call build_platform,$(platform)))
 	@chmod +x $(OUTPUT_DIR)/*
 	@echo "Build complete. Binaries are in $(OUTPUT_DIR)/"
+
+.PHONY: nix-build
+nix-build:
+	nix build .#terralink
 
 # A helper function to build for a single platform
 define build_platform
@@ -33,7 +47,7 @@ define build_platform
 	@echo "--> Building for $(os)/$(arch)..."
 	$(eval output_name = "$(OUTPUT_DIR)/$(BINARY_NAME)-$(VERSION)-$(os)-$(arch)")
 	$(if $(findstring windows,$(os)),$(eval output_name = "$(output_name).exe"))
-	@GOOS=$(os) GOARCH=$(arch) go build -v $(BUILD_LDFLAGS) -o $(output_name) $(MAIN_PACKAGE_PATH)
+	@GOOS=$(os) GOARCH=$(arch) go build -v $(BUILD_GO_FLAGS) $(BUILD_LDFLAGS) -o $(output_name) $(MAIN_PACKAGE_PATH)
 endef
 
 
