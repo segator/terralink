@@ -57,7 +57,8 @@
       "include-v-in-tag": true,
       "package-name": "terralink",
       "extra-files": [
-        "README.md"
+        "README.md",
+        "flake.nix"
       ]
     }
   },
