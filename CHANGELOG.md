@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.2.2](https://github.com/segator/terralink/compare/v0.2.1...v0.2.2) (2025-06-24)
+
+
+### 🏗️ Build System
+
+* remove version in the name of the binary, version can be see by terralink version ([a2db1b0](https://github.com/segator/terralink/commit/a2db1b0695b053a07f19eb99fff3655197ad38d2))
+
+
+### 🔧 Miscellaneous Chores
+
+* beauty table with pre-built binaries ([8443180](https://github.com/segator/terralink/commit/8443180a6d7163f0235e5edb39542409d112a792))
+* README.md table of content ([e027483](https://github.com/segator/terralink/commit/e027483a706d4201ec529ab29fe3e0a7007428ba))
+
 ## [0.2.1](https://github.com/segator/terralink/compare/v0.2.0...v0.2.1) (2025-06-24)
 
 
