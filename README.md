@@ -28,6 +28,7 @@ By adding a simple comment directive to your module blocks, you can instruct Ter
     *   [Load Local Modules](#load-local-modules)
     *   [Unload Local Modules](#unload-local-modules)
     *   [Check Module Status](#check-module-status)
+    *   [Github Action](#github-action)
 
 ## Installation
 
@@ -116,3 +117,28 @@ terralink check --dir=/path/to/your/terraform/project
 ```
 
 Pro-Tip: Add the check command to a pre-commit Git hook or your CI pipeline to ensure you don't accidentally commit code with local module paths.
+
+### Github action
+You can use Terralink in your GitHub Actions workflows to automatically load or unload local modules based on the context of the workflow. Here's an example of how to set it up:
+
+```yaml
+name: Terralink Check
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  terralink-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Terralink Check
+        uses: segator/terralink/github-action@v0.2.1 # x-release-please-version
+        # directory and version are optional, if not provided it will use the current working directory and the latest version of Terralink
+        with:          
+          directory: '/path/to/your/terraform/project'
+          version: 'v0.2.1' # x-release-please-version
+```
