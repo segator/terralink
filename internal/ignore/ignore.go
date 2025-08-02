@@ -11,6 +11,7 @@ import (
 // Default patterns to ignore
 var defaultPatterns = []string{
 	".terraform",
+	".terragrunt-cache",
 }
 
 // IgnoreMatcher handles path matching against ignore patterns

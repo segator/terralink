@@ -16,7 +16,7 @@
 
 Terralink is a command-line tool that simplifies this process, allowing you to seamlessly switch between remote and local module dependencies.
 
-By adding a simple comment directive to your module blocks, you can instruct Terralink to "load" your local modules for development or "unload" them to revert to the original remote sources. This is especially useful for developers who need to frequently test changes locally without altering their main Terraform configuration.
+By adding a simple comment directive to your module blocks, or terragrunt terraform blocks you can instruct Terralink to "load" your local modules for development or "unload" them to revert to the original remote sources. This is especially useful for developers who need to frequently test changes locally without altering their main Terraform configuration.
 
 ## Table of Contents
 *   [Installation](#installation)
@@ -83,6 +83,17 @@ module "aws_managed" {
     # ... other module configurations
 }
 ```
+
+Supported terragrunt as well
+
+update your `terragrunt.hcl` file with the directive:
+```hcl
+terraform {
+  # terralink: path=../local/aws/managed
+  source  = "tfr://my-registry/managed/aws?version=1.2.3"  
+}
+```
+
 you can ignore certain paths from being scanned by `.terralinkignore` file:
 ```
 .terraform

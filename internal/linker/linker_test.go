@@ -23,7 +23,7 @@ var testCases = []struct {
 		name: "Simple module with version",
 		initialHCL: `
 module "my_module" {
-  # terralink: path=../modules/my-module
+  # terralink: path=../loadableBlocks/my-module
   source  = "app.terraform.io/my-org/my-module/aws"
   version = "1.0.0"
 
@@ -33,9 +33,9 @@ module "my_module" {
 `,
 		expectedDevLoad: `
 module "my_module" {
-  # terralink: path=../modules/my-module
+  # terralink: path=../loadableBlocks/my-module
   # terralink-state: source="app.terraform.io/my-org/my-module/aws" version="1.0.0"
-  source = "../modules/my-module"
+  source = "../loadableBlocks/my-module"
 
 
   some_var = "value"
@@ -43,7 +43,7 @@ module "my_module" {
 `,
 		expectedDevUnload: `
 module "my_module" {
-  # terralink: path=../modules/my-module
+  # terralink: path=../loadableBlocks/my-module
   source  = "app.terraform.io/my-org/my-module/aws"
   version = "1.0.0"
 
@@ -78,10 +78,10 @@ module "no_version" {
 `,
 	},
 	{
-		name: "File with multiple modules",
+		name: "File with multiple loadableBlocks",
 		initialHCL: `
 module "unmanaged_module" {
-  source  = "terraform-aws-modules/vpc/aws"
+  source  = "terraform-aws-loadableBlocks/vpc/aws"
   version = "3.0.0"
 }
 
@@ -94,7 +94,7 @@ module "managed_module" {
 `,
 		expectedDevLoad: `
 module "unmanaged_module" {
-  source  = "terraform-aws-modules/vpc/aws"
+  source  = "terraform-aws-loadableBlocks/vpc/aws"
   version = "3.0.0"
 }
 
@@ -107,7 +107,7 @@ module "managed_module" {
 `,
 		expectedDevUnload: `
 module "unmanaged_module" {
-  source  = "terraform-aws-modules/vpc/aws"
+  source  = "terraform-aws-loadableBlocks/vpc/aws"
   version = "3.0.0"
 }
 
@@ -283,7 +283,7 @@ func TestLinker_CheckCommand(t *testing.T) {
 	require.NoError(t, err)
 	linker := NewLinker(matcher)
 
-	t.Run("Check finds active dev modules", func(t *testing.T) {
+	t.Run("Check finds active dev loadableBlocks", func(t *testing.T) {
 		dir := t.TempDir()
 		filePath := filepath.Join(dir, "dev.tf")
 		content := testCases[0].expectedDevLoad // Use a known dev-mode file
@@ -300,7 +300,7 @@ func TestLinker_CheckCommand(t *testing.T) {
 		assert.Contains(t, loadedModules, "my_module")
 	})
 
-	t.Run("Check finds no loaded modules", func(t *testing.T) {
+	t.Run("Check finds no loaded loadableBlocks", func(t *testing.T) {
 		dir := t.TempDir()
 		filePath := filepath.Join(dir, "prod.tf")
 		content := testCases[0].initialHCL // Use a known prod-mode file

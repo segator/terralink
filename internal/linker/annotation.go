@@ -25,8 +25,9 @@ var (
 
 // StateAnnotation holds the original source and version of a module.
 type StateAnnotation struct {
-	Source  string
-	Version string
+	Source      string
+	SourceIsHCL bool // Indicates if the source is an HCL expression
+	Version     string
 }
 
 // findDevAnnotation searches through a block's comments to find a dev annotation.
@@ -87,6 +88,10 @@ func parseStateAnnotation(line string) (StateAnnotation, bool) {
 		key, value := match[1], match[2]
 		switch key {
 		case "source":
+			if strings.HasPrefix(value, "hcl:") {
+				state.SourceIsHCL = true
+				state.Source = strings.TrimSpace(strings.TrimPrefix(value, "hcl:"))
+			}
 			state.Source = value
 			found = true
 		case "version":
@@ -118,5 +123,10 @@ func getAttrValueAsString(attr *hclwrite.Attribute) string {
 			return strings.Trim(string(token.Bytes), `"`)
 		}
 	}
-	return "" // Return empty if no string literal is found
+	// If no string literal is found, just return everything as a string.
+	valueString := "hcl:"
+	for _, token := range attr.Expr().BuildTokens(nil) {
+		valueString += string(token.Bytes)
+	}
+	return valueString // Return empty if no string literal is found
 }

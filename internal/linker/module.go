@@ -2,12 +2,21 @@ package linker
 
 import (
 	"fmt"
+	"github.com/hashicorp/hcl/v2"
+	"strings"
 
 	"github.com/hashicorp/hcl/v2/hclsyntax"
 	"github.com/hashicorp/hcl/v2/hclwrite"
 	"github.com/sirupsen/logrus"
 	"github.com/zclconf/go-cty/cty"
 )
+
+type LoadableBlock interface {
+	Name() string
+	IsLoaded() bool
+	Load() (bool, error)
+	Unload() (bool, error)
+}
 
 // Module represents a single "module" block within a Terraform file.
 // It provides methods to inspect and manipulate the module's state.
@@ -81,7 +90,11 @@ func (m *Module) Load() (bool, error) {
 
 		// Find the `source` attribute and replace its line with the new local path.
 		if !sourceReplaced && token.Type == hclsyntax.TokenIdent && string(token.Bytes) == "source" && braceLevel == 0 && parenLevel == 0 {
-			outputTokens = append(outputTokens, buildAttributeTokens("source", devPath)...)
+			tokens, err := buildAttributeTokens("source", devPath, false)
+			if err != nil {
+				return false, fmt.Errorf("failed to build source attribute tokens: %w", err)
+			}
+			outputTokens = append(outputTokens, tokens...)
 			sourceReplaced = true
 
 			// Skip the original source attribute tokens until the next newline.
@@ -157,9 +170,17 @@ func (m *Module) Unload() (bool, error) {
 
 		// Find and replace the source attribute.
 		if !sourceReplaced && token.Type == hclsyntax.TokenIdent && string(token.Bytes) == "source" {
-			outputTokens = append(outputTokens, buildAttributeTokens("source", state.Source)...)
+			tokens, err := buildAttributeTokens("source", state.Source, state.SourceIsHCL)
+			if err != nil {
+				return false, fmt.Errorf("failed to build source attribute tokens: %w", err)
+			}
+			outputTokens = append(outputTokens, tokens...)
 			if state.Version != "" {
-				outputTokens = append(outputTokens, buildAttributeTokens("version", state.Version)...)
+				tokens, err = buildAttributeTokens("version", state.Version, false)
+				if err != nil {
+					return false, fmt.Errorf("failed to build version attribute tokens: %w", err)
+				}
+				outputTokens = append(outputTokens, tokens...)
 			}
 			sourceReplaced = true
 
@@ -193,14 +214,35 @@ func tokensUntil(tokens hclwrite.Tokens, tokenType hclsyntax.TokenType) (int, er
 }
 
 // buildAttributeTokens creates the HCL tokens for a complete attribute line.
-func buildAttributeTokens(name, value string) hclwrite.Tokens {
-	// Using NewExpressionLiteral ensures proper quoting and escaping.
-	expr := hclwrite.NewExpressionLiteral(cty.StringVal(value))
+func buildAttributeTokens(name, value string, hclFormat bool) (hclwrite.Tokens, error) {
 	tokens := hclwrite.Tokens{
 		{Type: hclsyntax.TokenIdent, Bytes: []byte(name)},
 		{Type: hclsyntax.TokenEqual, Bytes: []byte("=")},
 	}
-	tokens = append(tokens, expr.BuildTokens(nil)...)
+
+	if hclFormat {
+		value = strings.TrimPrefix(value, "hcl:")
+		valueSyntaxTokens, diags := hclsyntax.LexConfig([]byte(value), "ignore.hcl", hcl.InitialPos)
+		if diags.HasErrors() {
+			return nil, diags.Errs()[0]
+		}
+
+		for _, syntaxToken := range valueSyntaxTokens {
+			if syntaxToken.Type == hclsyntax.TokenEOF {
+				continue
+			}
+
+			writeToken := &hclwrite.Token{
+				Type:  syntaxToken.Type,
+				Bytes: syntaxToken.Bytes,
+			}
+			tokens = append(tokens, writeToken)
+		}
+	} else {
+		literalExpr := hclwrite.NewExpressionLiteral(cty.StringVal(value))
+		tokens = append(tokens, literalExpr.BuildTokens(nil)...)
+	}
+
 	tokens = append(tokens, &hclwrite.Token{Type: hclsyntax.TokenNewline, Bytes: []byte("\n")})
-	return tokens
+	return tokens, nil
 }

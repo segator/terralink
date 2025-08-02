@@ -10,17 +10,17 @@ import (
 )
 
 // Helper to create a test module and its parent file from HCL string content
-func createTestModule(t *testing.T, content string) (LoadableBlock, *hclwrite.File) {
+func createTestTerragruntTerraform(t *testing.T, content string) (LoadableBlock, *hclwrite.File) {
 	t.Helper()
-	hclFile, diags := hclwrite.ParseConfig([]byte(content), "test.tf", hcl.InitialPos)
+	hclFile, diags := hclwrite.ParseConfig([]byte(content), "terragrunt.hcl", hcl.InitialPos)
 	require.False(t, diags.HasErrors(), "HCL parsing failed")
 
 	block := hclFile.Body().Blocks()[0]
 	require.NotNil(t, block, "No module block found in test HCL")
-	return NewModule(block.Labels()[0], block), hclFile
+	return NewTerragruntTerraform(block), hclFile
 }
 
-func TestModule_Load(t *testing.T) {
+func TestTerragruntTerraform_Load(t *testing.T) {
 	testCases := []struct {
 		name         string
 		initialHCL   string
@@ -29,32 +29,31 @@ func TestModule_Load(t *testing.T) {
 		expectErr    bool
 	}{
 		{
-			name: "Load a module with version",
+			name: "Load terraform",
 			initialHCL: `
-module "test" {
+terraform {
   # terralink: path=../local
-  source  = "remote/source"
-  version = "1.0.0"
+  source  = "tfr://domain.com/remote/source?version=1.0.0"  
 }`,
 			expectedHCL: `
-module "test" {
+terraform {
   # terralink: path=../local
-  # terralink-state: source="remote/source" version="1.0.0"
+  # terralink-state: source="tfr://domain.com/remote/source?version=1.0.0"
   source = "../local"
 }`,
 			expectChange: true,
 		},
 		{
-			name: "Load a module without version",
+			name: "Load terraform with hcl as source",
 			initialHCL: `
-module "test" {
+terraform {
   # terralink: path=../local
-  source  = "remote/source"
+  source  = include.root.locals.module_path
 }`,
 			expectedHCL: `
-module "test" {
+terraform {
   # terralink: path=../local
-  # terralink-state: source="remote/source"
+  # terralink-state: source="hcl:include.root.locals.module_path"
   source = "../local"
 }`,
 			expectChange: true,
@@ -62,30 +61,28 @@ module "test" {
 		{
 			name: "Idempotency: Do not load an already loaded module",
 			initialHCL: `
-module "test" {
+terraform {
   # terralink: path=../local
-  # terralink-state: source="remote/source" version="1.0.0"
+  # terralink-state: source="remote/source?version=1.0.0"
   source = "../local"
 }`,
 			expectedHCL: `
-module "test" {
+terraform {
   # terralink: path=../local
-  # terralink-state: source="remote/source" version="1.0.0"
+  # terralink-state: source="remote/source?version=1.0.0"
   source = "../local"
 }`,
 			expectChange: false,
 		},
 		{
-			name: "Do not load module without annotation",
+			name: "Do not load terragrunt without annotation",
 			initialHCL: `
-module "test" {
-  source  = "remote/source"
-  version = "1.0.0"
+terraform {
+  source  = "remote/source?version=1.0.0"
 }`,
 			expectedHCL: `
-module "test" {
-  source  = "remote/source"
-  version = "1.0.0"
+terraform {
+  source  = "remote/source?version=1.0.0"
 }`,
 			expectChange: false,
 		},
@@ -93,8 +90,8 @@ module "test" {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			module, hclFile := createTestModule(t, tc.initialHCL)
-			changed, err := module.Load()
+			terragruntTerraformBlock, hclFile := createTestTerragruntTerraform(t, tc.initialHCL)
+			changed, err := terragruntTerraformBlock.Load()
 
 			if tc.expectErr {
 				assert.Error(t, err)
@@ -108,7 +105,7 @@ module "test" {
 	}
 }
 
-func TestModule_Unload(t *testing.T) {
+func TestTerragruntTerraform_Unload(t *testing.T) {
 	testCases := []struct {
 		name         string
 		initialHCL   string
@@ -117,49 +114,61 @@ func TestModule_Unload(t *testing.T) {
 		expectErr    bool
 	}{
 		{
-			name: "Unload a loaded module with version",
+			name: "Unload a loaded terragrunt terraform",
 			initialHCL: `
-module "test" {
+terraform {
   # terralink: path=../local
-  # terralink-state: source="remote/source" version="1.0.0"
+  # terralink-state: source="remote/source?version=1.0.0"
   source = "../local"
 }`,
 			expectedHCL: `
-module "test" {
+terraform {
   # terralink: path=../local
-  source  = "remote/source"
-  version = "1.0.0"
+  source  = "remote/source?version=1.0.0"
 }`,
 			expectChange: true,
 		},
 		{
-			name: "Unload a loaded module without version",
+			name: "Unload a loaded terragrunt terraform with hcl",
 			initialHCL: `
-module "test" {
+terraform {
+  # terralink: path=../local
+  # terralink-state: source="hcl:include.root.locals.module_path"
+  source = "../local"
+}`,
+			expectedHCL: `
+terraform {
+  # terralink: path=../local
+  source  = include.root.locals.module_path
+}`,
+			expectChange: true,
+		},
+		{
+			name: "Unload a loaded terragrunt without version",
+			initialHCL: `
+terraform {
   # terralink: path=../local
   # terralink-state: source="remote/source"
   source = "../local"
 }`,
 			expectedHCL: `
-module "test" {
+terraform {
   # terralink: path=../local
   source = "remote/source"
 }`,
 			expectChange: true,
 		},
 		{
-			name: "Idempotency: Do not unload a module not in dev mode",
+			name: "Idempotency: Do not unload a terragrunt not in dev mode",
 			initialHCL: `
-module "test" {
+terraform {
   # terralink: path=../local
-  source  = "remote/source"
-  version = "1.0.0"
+  source  = "remote/source?version=1.0.0"
 }`,
 			expectedHCL: `
-module "test" {
+terraform {
   # terralink: path=../local
-  source  = "remote/source"
-  version = "1.0.0"
+  source  = "remote/source?version=1.0.0"
 }`,
 			expectChange: false,
 		},
@@ -167,8 +176,8 @@ module "test" {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			module, hclFile := createTestModule(t, tc.initialHCL)
-			changed, err := module.Unload()
+			terragruntTerraformBlock, hclFile := createTestTerragruntTerraform(t, tc.initialHCL)
+			changed, err := terragruntTerraformBlock.Unload()
 
 			if tc.expectErr {
 				assert.Error(t, err)
