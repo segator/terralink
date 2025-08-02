@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.3](https://github.com/segator/terralink/compare/v0.2.2...v0.2.3) (2025-08-02)
+
+
+### 🤖 Continuous Integration
+
+* gh action fix binary download ([e05f2a5](https://github.com/segator/terralink/commit/e05f2a5523b006209054228ad76f70c5132dda7d))
+
 ## [0.2.2](https://github.com/segator/terralink/compare/v0.2.1...v0.2.2) (2025-08-02)
 
 

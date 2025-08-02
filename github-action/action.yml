@@ -6,9 +6,9 @@ inputs:
     required: false
     default: '${{ github.workspace }}'
   version:
-    description: 'Terralink version to use (default: 0.2.2)' # x-release-please-version
+    description: 'Terralink version to use (default: 0.2.3)' # x-release-please-version
     required: false
-    default: '0.2.2' # x-release-please-version
+    default: '0.2.3' # x-release-please-version
 runs:
   using: 'composite'
   steps:
