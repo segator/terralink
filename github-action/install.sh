@@ -16,6 +16,8 @@ BINARY="terralink-${VERSION}-${OS}-${ARCH}"
 URL="https://github.com/segator/terralink/releases/download/v${VERSION}/${BINARY}"
 echo "Downloading $URL"
 curl -L "$URL" -o terralink
+
+echo "Installing into PATH"
 chmod +x terralink
 echo "$(pwd)/terralink" >> $GITHUB_PATH
 
