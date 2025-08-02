@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/segator/terralink/compare/v0.2.3...v0.3.0) (2025-08-02)
+
+
+### 🎉 Features
+
+* support terragrunt ([#9](https://github.com/segator/terralink/issues/9)) ([09072e5](https://github.com/segator/terralink/commit/09072e5f342c40c13d517e5e4b09f1ba46f62f90))
+
 ## [0.2.3](https://github.com/segator/terralink/compare/v0.2.2...v0.2.3) (2025-08-02)
 
 
