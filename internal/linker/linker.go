@@ -14,7 +14,7 @@ import (
 type LoadedModules []string
 
 // Linker is the main struct responsible for orchestrating the linking,
-// unlinking, and checking of Terraform modules. It uses an IgnoreMatcher
+// unlinking, and checking of Terraform loadableBlocks. It uses an IgnoreMatcher
 // to determine which files and directories to skip.
 type Linker struct {
 	matcher *ignore.IgnoreMatcher
@@ -60,7 +60,7 @@ func processFiles[T any](scanPath string, matcher *ignore.IgnoreMatcher, process
 			return fmt.Errorf("error processing file %s: %w", path, err)
 		}
 
-		// Only add to results if it's a non-zero value (e.g., changes > 0 or modules found)
+		// Only add to results if it's a non-zero value (e.g., changes > 0 or loadableBlocks found)
 		//var zero T
 		//if any(result) != any(zero) {
 		//	results[path] = result
@@ -79,12 +79,12 @@ func processFiles[T any](scanPath string, matcher *ignore.IgnoreMatcher, process
 	return results, nil
 }
 
-// Check scans the given path for Terraform files and reports which modules
+// Check scans the given path for Terraform files and reports which loadableBlocks
 // in each file are currently in a "loaded" (dev) state.
 func (l *Linker) Check(scanPath string) (map[string]LoadedModules, error) {
 	return processFiles(scanPath, l.matcher, func(hclFile *HCLFile) (LoadedModules, error) {
 		var loadedModules LoadedModules
-		for _, module := range hclFile.Modules() {
+		for _, module := range hclFile.LoadableBlocks() {
 			if module.IsLoaded() {
 				loadedModules = append(loadedModules, module.Name())
 			}
@@ -101,7 +101,7 @@ func (l *Linker) Check(scanPath string) (map[string]LoadedModules, error) {
 func (l *Linker) DevLoad(scanPath string) (map[string]int, error) {
 	return processFiles(scanPath, l.matcher, func(hclFile *HCLFile) (int, error) {
 		changes := 0
-		for _, module := range hclFile.Modules() {
+		for _, module := range hclFile.LoadableBlocks() {
 			loaded, err := module.Load()
 			if err != nil {
 				return 0, fmt.Errorf("in module '%s': %w", module.Name(), err)
@@ -125,7 +125,7 @@ func (l *Linker) DevLoad(scanPath string) (map[string]int, error) {
 func (l *Linker) DevUnload(scanPath string) (map[string]int, error) {
 	return processFiles(scanPath, l.matcher, func(hclFile *HCLFile) (int, error) {
 		changes := 0
-		for _, module := range hclFile.Modules() {
+		for _, module := range hclFile.LoadableBlocks() {
 			unloaded, err := module.Unload()
 			if err != nil {
 				return 0, fmt.Errorf("in module '%s': %w", module.Name(), err)

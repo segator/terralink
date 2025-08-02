@@ -9,11 +9,11 @@ import (
 )
 
 // HCLFile represents a single Terraform (.tf) file. It encapsulates the file path,
-// the parsed HCL content, and the modules defined within it.
+// the parsed HCL content, and the loadableBlocks defined within it.
 type HCLFile struct {
-	path    string
-	hclFile *hclwrite.File
-	modules []*Module
+	path           string
+	hclFile        *hclwrite.File
+	loadableBlocks []LoadableBlock
 }
 
 // NewHCLFile reads and parses a Terraform file from the given path.
@@ -33,24 +33,26 @@ func NewHCLFile(path string) (*HCLFile, error) {
 	return &HCLFile{path: path, hclFile: hclFile}, nil
 }
 
-// Modules returns a slice of all "module" blocks found in the HCL file.
+// LoadableBlocks returns a slice of all "module" blocks found in the HCL file.
 // It parses the blocks on the first call and caches the result.
-func (f *HCLFile) Modules() []*Module {
-	if f.modules != nil {
-		return f.modules
+func (f *HCLFile) LoadableBlocks() []LoadableBlock {
+	if f.loadableBlocks != nil {
+		return f.loadableBlocks
 	}
 
-	f.modules = []*Module{}
 	for _, block := range f.hclFile.Body().Blocks() {
 		if block.Type() == "module" {
 			// We expect module blocks to have exactly one label (the module name).
 			if len(block.Labels()) == 1 {
 				moduleName := block.Labels()[0]
-				f.modules = append(f.modules, NewModule(moduleName, block))
+				f.loadableBlocks = append(f.loadableBlocks, NewModule(moduleName, block))
 			}
 		}
+		if block.Type() == "terraform" {
+			f.loadableBlocks = append(f.loadableBlocks, NewTerragruntTerraform(block))
+		}
 	}
-	return f.modules
+	return f.loadableBlocks
 }
 
 // Write saves the current in-memory representation of the HCL file
