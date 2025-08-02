@@ -12,7 +12,7 @@ case "$ARCH" in
   arm64|aarch64) ARCH="arm64" ;;
 esac
 
-BINARY="terralink-${VERSION}-${OS}-${ARCH}"
+BINARY="terralink-${OS}-${ARCH}"
 URL="https://github.com/segator/terralink/releases/download/v${VERSION}/${BINARY}"
 echo "Downloading $URL"
 curl -L "$URL" -o terralink
