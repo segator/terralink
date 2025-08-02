@@ -58,7 +58,8 @@
       "package-name": "terralink",
       "extra-files": [
         "README.md",
-        "flake.nix"
+        "flake.nix",
+        ".gtihub/actions/terralink-checker/action.yml"
       ]
     }
   },

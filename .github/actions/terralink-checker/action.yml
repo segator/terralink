@@ -1,0 +1,44 @@
+name: 'terralink-checker'
+description: 'Executes terralink check to verify your project is not dev loaded'
+inputs:
+  directory:
+    description: 'Directory to check with terralink'
+    required: true
+  version:
+    description: 'Terralink version to use (default: 0.2.1)' # x-release-please-version
+    required: false
+    default: '0.2.1' # x-release-please-version
+runs:
+  using: 'composite'
+  steps:
+    - name: Install terralink
+      shell: bash
+      run: |
+        set -e
+        OS="$(uname -s | tr '[:upper:]' '[:lower:]')"
+        ARCH="$(uname -m)"
+        case "$OS" in
+          linux) OS="linux" ;;
+          darwin) OS="darwin" ;;
+          msys*|cygwin*|mingw*|windows*) OS="windows" ;;
+          *) echo "Unsupported OS: $OS" && exit 1 ;;
+        esac
+        case "$ARCH" in
+          x86_64) ARCH="amd64" ;;
+          arm64|aarch64) ARCH="arm64" ;;
+          *) echo "Unsupported architecture: $ARCH" && exit 1 ;;
+        esac
+        EXT=""
+        if [[ "$OS" == "windows" ]]; then
+          EXT=".exe"
+        fi
+        VERSION="${{ inputs.version }}"
+        BINARY="terralink-${VERSION}-${OS}-${ARCH}${EXT}"
+        URL="https://github.com/segator/terralink/releases/download/v${VERSION}/${BINARY}"
+        echo "Downloading $URL"
+        curl -L "$URL" -o terralink${EXT}
+        chmod +x terralink${EXT}
+    - name: Run terralink check
+      shell: bash
+      run: |
+        ./terralink check --dir "${{ inputs.directory }}"
