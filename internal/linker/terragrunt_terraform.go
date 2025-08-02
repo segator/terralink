@@ -130,6 +130,9 @@ func (t TerragruntTerraform) Unload() (bool, error) {
 		// Find and replace the source attribute.
 		if !sourceReplaced && token.Type == hclsyntax.TokenIdent && string(token.Bytes) == "source" {
 			tokens, err := buildAttributeTokens("source", state.Source, state.SourceIsHCL)
+			if err != nil {
+				return false, fmt.Errorf("failed to build source attribute tokens: %w", err)
+			}
 			outputTokens = append(outputTokens, tokens...)
 			sourceReplaced = true
 
