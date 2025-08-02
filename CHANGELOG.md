@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.2.2](https://github.com/segator/terralink/compare/v0.2.1...v0.2.2) (2025-08-02)
+
+
+### 🏗️ Build System
+
+* **deps:** bump github.com/hashicorp/hcl/v2 from 2.23.0 to 2.24.0 ([#6](https://github.com/segator/terralink/issues/6)) ([c8dab21](https://github.com/segator/terralink/commit/c8dab2167326f6ad424d5231cedd1630a9546619))
+* remove version in the name of the binary, version can be see by terralink version ([a2db1b0](https://github.com/segator/terralink/commit/a2db1b0695b053a07f19eb99fff3655197ad38d2))
+
+
+### 🤖 Continuous Integration
+
+* create github action ([#7](https://github.com/segator/terralink/issues/7)) ([826f6f8](https://github.com/segator/terralink/commit/826f6f83ccca3bf5636c6fb391cd2f4d69262a20))
+* update gh action default version ([6196bd6](https://github.com/segator/terralink/commit/6196bd6e7c3fccd192557322fd54f6532df3c7fb))
+
+
+### 🔧 Miscellaneous Chores
+
+* beauty table with pre-built binaries ([8443180](https://github.com/segator/terralink/commit/8443180a6d7163f0235e5edb39542409d112a792))
+* README.md table of content ([e027483](https://github.com/segator/terralink/commit/e027483a706d4201ec529ab29fe3e0a7007428ba))
+
 ## [0.2.1](https://github.com/segator/terralink/compare/v0.2.0...v0.2.1) (2025-06-24)
 
 
