@@ -59,7 +59,7 @@
       "extra-files": [
         "README.md",
         "flake.nix",
-        ".gtihub/actions/terralink-checker/action.yml"
+        "github-action/action.yml"
       ]
     }
   },
