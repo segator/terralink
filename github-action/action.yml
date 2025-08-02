@@ -4,6 +4,7 @@ inputs:
   directory:
     description: 'Directory to check with terralink'
     required: false
+    default: '${{ github.workspace }}'
   version:
     description: 'Terralink version to use (default: 0.2.1)' # x-release-please-version
     required: false
