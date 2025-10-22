@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.3.1](https://github.com/segator/terralink/compare/v0.3.0...v0.3.1) (2025-10-22)
+
+
+### 🐛 Bug Fixes
+
+* dependabot automerge ([6bdd8a9](https://github.com/segator/terralink/commit/6bdd8a9533f2fbac4354aa6675bcb27a4f3633c2))
+
+
+### 🏗️ Build System
+
+* **deps:** bump github.com/stretchr/testify from 1.10.0 to 1.11.1 ([#14](https://github.com/segator/terralink/issues/14)) ([7e5b652](https://github.com/segator/terralink/commit/7e5b652ed71b1a611884473f4f5b738916d65ebd))
+
 ## [0.3.0](https://github.com/segator/terralink/compare/v0.2.3...v0.3.0) (2025-08-02)
 
 
