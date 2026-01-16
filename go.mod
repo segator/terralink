@@ -4,7 +4,7 @@ go 1.24
 
 require (
 	github.com/hashicorp/hcl/v2 v2.24.0
-	github.com/sirupsen/logrus v1.9.3
+	github.com/sirupsen/logrus v1.9.4
 	github.com/spf13/cobra v1.9.1
 	github.com/stretchr/testify v1.11.1
 	github.com/zclconf/go-cty v1.16.3
